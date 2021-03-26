@@ -1,19 +1,27 @@
 import secrets
 import time
+import threading
+from concurrent.futures import ThreadPoolExecutor
 
 import pyautogui as pag
 from colorama import Fore, init
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 init(autoreset=True)
 
 URL = 'https://quizizz.com/join'
 
-def spam(code, number_of_bots):
-	driver = webdriver.Firefox()
+def spam(code, number_of_bots, headless):
+	if headless:
+		options = webdriver.FirefoxOptions()
+		options.headless = True
+		driver = webdriver.Firefox(options=options)
+	else:
+		driver = webdriver.Firefox()
 	
 	for i in range(number_of_bots):
+		driver.switch_to.window(driver.window_handles[i])
 		driver.get(URL)
 		while True:
 			try:
@@ -34,19 +42,27 @@ def spam(code, number_of_bots):
 				break
 			except: pass
 
-		pag.hotkey('ctrl', 't')
-		driver.switch_to.window(driver.window_handles[i+1])
+		driver.execute_script(f'''window.open("{URL}","_blank");''')
 
 		time.sleep(0.1)
 
 if __name__ == '__main__':
+
 	try:
 		code = input(f'Enter code: {Fore.GREEN}')
 		number_of_bots = int(input(f'Enter the number of bots to join: {Fore.GREEN}'))
+		number_of_threads = int(input(f'Enter the number of threads to use: {Fore.GREEN}'))
 
 		start_time = time.perf_counter()
 
-		spam(code, number_of_bots)
+		threads = list()
+		for i in range(number_of_threads):
+			t = threading.Thread(target=spam, args=(code, (number_of_bots // number_of_threads), True,))
+			threads.append(t)
+			t.start()
+
+		for idx, thread in enumerate(threads):
+			thread.join()
 
 		print(f'Time taken for {number_of_bots}: {time.perf_counter() - start_time}')
 	except KeyboardInterrupt:
