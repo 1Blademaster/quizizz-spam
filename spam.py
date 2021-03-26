@@ -3,7 +3,6 @@ import time
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
-import pyautogui as pag
 from colorama import Fore, init
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -30,17 +29,20 @@ def spam(code, number_of_bots, headless):
 				time.sleep(0.05)
 				code_input.send_keys(Keys.RETURN)
 				break
-			except: pass
+			except:
+				time.sleep(0.25)
 
 		while True:
 			try:
 				name_input = driver.find_element_by_class_name('enter-name-field')
 				name_input.clear()
+				time.sleep(0.1)
 				name_input.send_keys(secrets.token_hex(4))
 				time.sleep(0.05)
 				name_input.send_keys(Keys.RETURN)
 				break
-			except: pass
+			except:
+				time.sleep(0.25)
 
 		driver.execute_script(f'''window.open("{URL}","_blank");''')
 
@@ -50,14 +52,17 @@ if __name__ == '__main__':
 
 	try:
 		code = input(f'Enter code: {Fore.GREEN}')
+		print(Fore.RESET)
 		number_of_bots = int(input(f'Enter the number of bots to join: {Fore.GREEN}'))
+		print(Fore.RESET)
 		number_of_threads = int(input(f'Enter the number of threads to use: {Fore.GREEN}'))
+		print(Fore.RESET)
 
 		start_time = time.perf_counter()
 
 		threads = list()
 		for i in range(number_of_threads):
-			t = threading.Thread(target=spam, args=(code, (number_of_bots // number_of_threads), True,))
+			t = threading.Thread(target=spam, args=(code, (number_of_bots // number_of_threads), False,))
 			threads.append(t)
 			t.start()
 
