@@ -1,12 +1,14 @@
+import os
 import secrets
-import time
 import threading
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 from colorama import Fore, init
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
+
 init(autoreset=True)
 
 URL = 'https://quizizz.com/join'
@@ -60,7 +62,7 @@ if __name__ == '__main__':
 
 		start_time = time.perf_counter()
 
-		threads = list()
+		threads = []
 		for i in range(number_of_threads):
 			t = threading.Thread(target=spam, args=(code, (number_of_bots // number_of_threads), False,))
 			threads.append(t)
@@ -72,3 +74,6 @@ if __name__ == '__main__':
 		print(f'Time taken for {number_of_bots}: {time.perf_counter() - start_time}')
 	except KeyboardInterrupt:
 		print(f'{Fore.RESET}Quitting')
+
+	os.system('taskkill /F /IM firefox.exe')
+	print('\nClosed all instances of firefox.exe')
